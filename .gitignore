@@ -124,6 +124,7 @@ storage/
 out/
 *.csv
 *.json
+!vercel.json
 *.pickle
 *.pkl
 
