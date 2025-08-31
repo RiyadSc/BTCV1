@@ -157,7 +157,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold text-white mb-2">Real-Time Risk Management</h3>
               <p className="text-gray-400">
-                Dynamic position sizing and drawdown protection with maximum drawdown limited to -69.39% during extreme volatility.
+                Dynamic position sizing and drawdown protection with advanced risk management during extreme volatility.
               </p>
             </div>
             <div className="text-center">
