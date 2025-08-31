@@ -140,7 +140,7 @@ export default function LandingPage() {
           <div className="flex justify-center">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 max-w-4xl">
               <img 
-                src="/Capture d'écran 2025-08-31 à 5.31.06 AM.png" 
+                src="/performance-chart.png" 
                 alt="Entropy-Adjusted Momentum Strategy Performance vs Buy & Hold BTC"
                 className="w-full h-auto rounded-lg shadow-2xl"
               />
