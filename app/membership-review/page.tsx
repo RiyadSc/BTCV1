@@ -84,30 +84,7 @@ export default function MembershipReviewPage() {
             Thank you for joining QuantREX! Your account is currently being reviewed for premium access.
           </p>
 
-          {/* Status Details */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 max-w-2xl mx-auto mb-8">
-            <h2 className="text-2xl font-semibold text-white mb-4">What happens next?</h2>
-            <div className="space-y-4 text-left">
-              <div className="flex items-start">
-                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
-                  <span className="text-white text-sm font-bold">1</span>
-                </div>
-                <p className="text-gray-300">Send 1 ETH to our wallet address for premium access</p>
-              </div>
-              <div className="flex items-start">
-                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
-                  <span className="text-white text-sm font-bold">2</span>
-                </div>
-                <p className="text-gray-300">We'll verify your payment and approve your account</p>
-              </div>
-              <div className="flex items-start">
-                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
-                  <span className="text-white text-sm font-bold">3</span>
-                </div>
-                <p className="text-gray-300">You'll receive immediate access to our trading signals and dashboard</p>
-              </div>
-            </div>
-          </div>
+
 
           {/* Contact Info */}
           <div className="text-gray-400">
