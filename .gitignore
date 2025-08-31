@@ -124,6 +124,8 @@ storage/
 out/
 *.csv
 *.json
+!package.json
+!package-lock.json
 !vercel.json
 *.pickle
 *.pkl
@@ -172,4 +174,3 @@ celerybeat.pid
 .mypy_cache/
 .dmypy.json
 dmypy.json
-.vercel
