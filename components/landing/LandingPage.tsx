@@ -279,7 +279,7 @@ export default function LandingPage() {
           </div>
           <div className="mt-8 pt-8 border-t border-gray-800 text-center">
             <p className="text-gray-400 text-sm">
-              © 2024 QuantREX. All rights reserved.
+              © 2025 QuantREX. All rights reserved.
             </p>
           </div>
         </div>

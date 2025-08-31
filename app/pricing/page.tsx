@@ -36,7 +36,7 @@ export default function PricingPage() {
             <div className="text-center mb-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-2">Professional Strategy</h3>
               <div className="flex items-baseline justify-center mb-2">
-                <span className="text-5xl font-bold text-gray-900">$500</span>
+                <span className="text-5xl font-bold text-gray-900">$1000</span>
                 <span className="text-xl text-gray-600 ml-1">/month</span>
               </div>
               <p className="text-gray-600">Full access to our institutional-grade trading strategy</p>

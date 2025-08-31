@@ -109,31 +109,10 @@ export default function MembershipReviewPage() {
             </div>
           </div>
 
-          {/* Payment Instructions */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 max-w-2xl mx-auto mb-8">
-            <h2 className="text-2xl font-semibold text-white mb-4">Payment Details</h2>
-            <div className="space-y-4">
-              <div className="text-left">
-                <label className="block text-gray-300 text-sm font-medium mb-2">Amount:</label>
-                <div className="bg-gray-800 text-white p-3 rounded-lg font-mono text-lg">1 ETH</div>
-              </div>
-              <div className="text-left">
-                <label className="block text-gray-300 text-sm font-medium mb-2">Wallet Address:</label>
-                <div className="bg-gray-800 text-white p-3 rounded-lg font-mono text-sm break-all">
-                  0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6
-                </div>
-              </div>
-              <div className="text-left">
-                <label className="block text-gray-300 text-sm font-medium mb-2">Network:</label>
-                <div className="bg-gray-800 text-white p-3 rounded-lg">Ethereum Mainnet</div>
-              </div>
-            </div>
-          </div>
-
           {/* Contact Info */}
           <div className="text-gray-400">
-            <p className="mb-2">Questions? Contact us at support@quantrex.com</p>
-            <p className="text-sm">Please include your email address in the transaction notes for faster processing</p>
+            <p className="mb-2">Questions? Contact us on telegram at @Rssss00000</p>
+            <p className="text-sm">Please include your gmail address, your crypto address used for payment and the transaction hash (txid) for faster processing.</p>
           </div>
         </div>
       </div>
