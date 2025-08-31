@@ -1,6 +1,54 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+
+// Custom hook for countdown to 9 PM EST
+const useCountdownTo9PM = () => {
+  const [countdown, setCountdown] = useState('')
+
+  useEffect(() => {
+    const calculateNext9PM = () => {
+      const now = new Date()
+      
+      // Create target time for today at 9 PM EST
+      const target = new Date(now)
+      target.setHours(21, 0, 0, 0) // 9 PM
+      
+      // If it's already past 9 PM today, target tomorrow
+      if (now >= target) {
+        target.setDate(target.getDate() + 1)
+      }
+      
+      return target
+    }
+
+    const updateCountdown = () => {
+      const now = new Date()
+      const target = calculateNext9PM()
+      const diff = target.getTime() - now.getTime()
+      
+      if (diff <= 0) {
+        setCountdown('0h 0m')
+        return
+      }
+      
+      const hours = Math.floor(diff / (1000 * 60 * 60))
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      
+      setCountdown(`${hours}h ${minutes}m`)
+    }
+
+    // Update immediately
+    updateCountdown()
+    
+    // Update every minute
+    const interval = setInterval(updateCountdown, 60000)
+    
+    return () => clearInterval(interval)
+  }, [])
+
+  return countdown
+}
 
 interface SignalCardProps {
   signal: {
@@ -45,6 +93,8 @@ interface SignalCardProps {
 }
 
 export default function SignalCard({ signal }: SignalCardProps) {
+  const countdown = useCountdownTo9PM()
+  
   if (!signal || !signal.signal_data) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -106,11 +156,18 @@ export default function SignalCard({ signal }: SignalCardProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">
-            Trading Signal
-          </h2>
+          <div className="flex items-center gap-4 mb-2">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Trading Signal
+            </h2>
+            <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg animate-pulse">
+              <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
+              <span className="text-sm font-semibold">Next Update In:</span>
+              <span className="text-lg font-bold font-mono">{countdown}</span>
+            </div>
+          </div>
           {signal.is_previous_day && (
-            <p className="text-sm text-amber-600 mt-2 font-medium">
+            <p className="text-sm text-amber-600 font-medium">
               ⚠️ Previous day signal (current signal pending)
             </p>
           )}
