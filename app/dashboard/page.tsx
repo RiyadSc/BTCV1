@@ -11,7 +11,7 @@ import SignalHistory from '@/components/dashboard/SignalHistory'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 export default function DashboardPage() {
-  const { user, loading: authLoading, onboardingCompleted } = useAuth()
+  const { user, loading: authLoading, onboardingCompleted, membershipStatus } = useAuth()
   const { data, loadMarketData, loadSignalData } = useDashboard()
   const router = useRouter()
 
@@ -21,12 +21,18 @@ export default function DashboardPage() {
       return
     }
 
+    // Redirect to membership review if user has free membership
+    if (!authLoading && user && membershipStatus === 'free') {
+      router.push('/membership-review')
+      return
+    }
+
     // Redirect to onboarding if user hasn't completed it
     if (!authLoading && user && onboardingCompleted === false) {
       router.push('/onboarding')
       return
     }
-  }, [user, authLoading, onboardingCompleted, router])
+  }, [user, authLoading, onboardingCompleted, membershipStatus, router])
 
   if (authLoading) {
     return (

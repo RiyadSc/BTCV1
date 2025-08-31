@@ -8,12 +8,14 @@ interface AuthContextType {
   user: User | null
   loading: boolean
   onboardingCompleted: boolean
+  membershipStatus: string | null
   signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signInWithGoogle: () => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>
   checkOnboardingStatus: () => Promise<void>
+  checkMembershipStatus: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -22,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [onboardingCompleted, setOnboardingCompleted] = useState(false)
+  const [membershipStatus, setMembershipStatus] = useState<string | null>(null)
 
   const checkOnboardingStatus = async () => {
     if (!user) return
@@ -44,6 +47,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const checkMembershipStatus = async () => {
+    if (!user) return
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('membership_status')
+        .eq('user_id', user.id)
+        .single()
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+        console.error('Error checking membership status:', error)
+        return
+      }
+
+      setMembershipStatus(data?.membership_status || 'free')
+    } catch (error) {
+      console.error('Error checking membership status:', error)
+    }
+  }
+
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
@@ -63,8 +87,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Check onboarding status when user changes
         if (session?.user) {
           await checkOnboardingStatus()
+          await checkMembershipStatus()
         } else {
           setOnboardingCompleted(false)
+          setMembershipStatus(null)
         }
       }
     )
@@ -76,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user) {
       checkOnboardingStatus()
+      checkMembershipStatus()
     }
   }, [user])
 
@@ -96,12 +123,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signInWithGoogle = async () => {
-    // For Google OAuth, we'll redirect to onboarding first
-    // The onboarding page will check if user exists and redirect accordingly
+    // For Google OAuth, we'll redirect to membership review first
+    // The membership review page will check status and redirect accordingly
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/onboarding`
+        redirectTo: `${window.location.origin}/membership-review`
       }
     })
     return { error }
@@ -122,12 +149,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     loading,
     onboardingCompleted,
+    membershipStatus,
     signUp,
     signIn,
     signInWithGoogle,
     signOut,
     resetPassword,
     checkOnboardingStatus,
+    checkMembershipStatus,
   }
 
   return (

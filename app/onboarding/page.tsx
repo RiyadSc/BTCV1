@@ -20,7 +20,7 @@ interface OnboardingData {
 }
 
 export default function OnboardingPage() {
-  const { user, loading } = useAuth()
+  const { user, loading, membershipStatus } = useAuth()
   const router = useRouter()
   const [checkingUser, setCheckingUser] = useState(true)
   const [isNewUser, setIsNewUser] = useState(false)
@@ -40,6 +40,12 @@ export default function OnboardingPage() {
 
     if (!user) {
       router.push('/auth/signin')
+      return
+    }
+
+    // Redirect to membership review if user has free membership
+    if (membershipStatus === 'free') {
+      router.push('/membership-review')
       return
     }
 
@@ -74,7 +80,7 @@ export default function OnboardingPage() {
     }
 
     checkUserProfile()
-  }, [user, loading, router])
+  }, [user, loading, membershipStatus, router])
 
   const handleInputChange = (field: keyof OnboardingData, value: string | number) => {
     setOnboardingData(prev => ({
