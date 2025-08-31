@@ -62,27 +62,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 {isUserMenuOpen && (
                   <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
                     <div className="py-1">
-                      <Link
-                        href="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        Your Profile
-                      </Link>
-                      <Link
-                        href="/settings"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        Settings
-                      </Link>
-                      <Link
-                        href="/billing"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        Billing
-                      </Link>
                       <button
                         onClick={handleSignOut}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -110,7 +89,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div className="text-sm text-gray-500">
-              © 2024 Quant Trading Bot. All rights reserved.
+              © 2025 QuantREX. All rights reserved.
             </div>
             <div className="flex space-x-6">
               <Link href="/privacy" className="text-sm text-gray-500 hover:text-gray-700">
@@ -118,9 +97,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </Link>
               <Link href="/terms" className="text-sm text-gray-500 hover:text-gray-700">
                 Terms of Service
-              </Link>
-              <Link href="/support" className="text-sm text-gray-500 hover:text-gray-700">
-                Support
               </Link>
             </div>
           </div>
