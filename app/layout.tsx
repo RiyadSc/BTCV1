@@ -7,8 +7,8 @@ import { DashboardProvider } from '@/lib/dashboard-context'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Quant Trading Bot - Professional Trading Signals',
-  description: 'Get institutional-grade quantitative trading signals based on Fear & Greed Index analysis. Make data-driven decisions with confidence.',
+  title: 'QuantREX - Entropy-Adjusted Momentum Strategy',
+  description: 'Professional quantitative trading signals powered by our proprietary Entropy-Adjusted Momentum Strategy. Institutional-grade risk management and data-driven returns.',
 }
 
 export default function RootLayout({
