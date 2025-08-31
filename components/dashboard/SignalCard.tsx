@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 
-// Custom hook for countdown to 9 PM EST
+// Custom hook for countdown to 9 PM EDT
 const useCountdownTo9PM = () => {
   const [countdown, setCountdown] = useState('')
 
@@ -10,12 +10,17 @@ const useCountdownTo9PM = () => {
     const calculateNext9PM = () => {
       const now = new Date()
       
-      // Create target time for today at 9 PM EST
-      const target = new Date(now)
+      // Get current time in EDT (Eastern Daylight Time)
+      const edtOffset = -4 // EDT is UTC-4
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000)
+      const edtTime = new Date(utc + (edtOffset * 3600000))
+      
+      // Create target time for today at 9 PM EDT
+      const target = new Date(edtTime)
       target.setHours(21, 0, 0, 0) // 9 PM
       
-      // If it's already past 9 PM today, target tomorrow
-      if (now >= target) {
+      // If it's already past 9 PM EDT today, target tomorrow
+      if (edtTime >= target) {
         target.setDate(target.getDate() + 1)
       }
       
@@ -25,7 +30,13 @@ const useCountdownTo9PM = () => {
     const updateCountdown = () => {
       const now = new Date()
       const target = calculateNext9PM()
-      const diff = target.getTime() - now.getTime()
+      
+      // Get current time in EDT
+      const edtOffset = -4 // EDT is UTC-4
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000)
+      const edtTime = new Date(utc + (edtOffset * 3600000))
+      
+      const diff = target.getTime() - edtTime.getTime()
       
       if (diff <= 0) {
         setCountdown('0h 0m')
@@ -160,7 +171,7 @@ export default function SignalCard({ signal }: SignalCardProps) {
             <h2 className="text-2xl font-bold text-gray-900">
               Trading Signal
             </h2>
-            <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg animate-pulse">
+            <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg">
               <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
               <span className="text-sm font-semibold">Next Update In:</span>
               <span className="text-lg font-bold font-mono">{countdown}</span>
