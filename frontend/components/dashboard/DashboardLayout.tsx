@@ -35,36 +35,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link href="/dashboard" className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-bold text-gray-900">Quant Trading Bot</h1>
+                <h1 className="text-xl font-bold text-gray-900">QuantREX</h1>
               </Link>
               
-              {/* Navigation Links */}
-              <div className="hidden md:ml-6 md:flex md:space-x-8">
-                <Link
-                  href="/dashboard"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/signals"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Signals
-                </Link>
-                <Link
-                  href="/portfolio"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Portfolio
-                </Link>
-                <Link
-                  href="/analytics"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Analytics
-                </Link>
-              </div>
+
             </div>
 
             {/* User Menu */}

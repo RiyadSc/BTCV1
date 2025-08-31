@@ -17,7 +17,7 @@ interface SignalCardProps {
       sentiment_index: number
       sentiment_state: string
       market_regime: string
-      price_level: number
+      price_level: number | null
       momentum_profile: {
         short_term_trend: string
         momentum_7d: number
@@ -170,10 +170,7 @@ export default function SignalCard({ signal }: SignalCardProps) {
               <span className="text-gray-600 font-medium">Market Regime:</span>
               <span className="font-medium text-gray-900">{signal.market_conditions.market_regime}</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600 font-medium">BTC Price:</span>
-              <span className="font-bold text-lg text-gray-900">${signal.market_conditions.price_level.toLocaleString()}</span>
-            </div>
+
           </div>
         </div>
       </div>

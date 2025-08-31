@@ -21,7 +21,7 @@ export default function LandingPage() {
       <nav className="relative z-10 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-white">Quant Trading Bot</h1>
+            <h1 className="text-2xl font-bold text-white">QuantREX</h1>
           </div>
           <div className="flex items-center space-x-4">
             {user ? (
@@ -86,12 +86,6 @@ export default function LandingPage() {
                   </svg>
                   Continue with Google
                 </button>
-                <Link 
-                  href="/auth/signup"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
-                >
-                  Sign Up with Email
-                </Link>
               </>
             )}
           </div>
@@ -101,12 +95,6 @@ export default function LandingPage() {
               className="border border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
             >
               View Pricing
-            </Link>
-            <Link 
-              href="/demo"
-              className="border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
-            >
-              Watch Demo
             </Link>
           </div>
         </div>
@@ -246,14 +234,29 @@ export default function LandingPage() {
                   </svg>
                   Start with Google
                 </button>
-                <Link 
-                  href="/auth/signup"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
-                >
-                  Sign Up with Email
-                </Link>
               </>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Trading Disclaimer */}
+      <div className="relative z-10 px-6 py-12">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center">
+            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="text-sm font-medium text-white mb-2">Important Trading Disclaimer</h3>
+            <p className="text-white/80 text-xs leading-relaxed">
+              <strong>Past performance does not guarantee future results.</strong> Cryptocurrency trading involves substantial risk of loss and is not suitable for all investors. 
+              The value of cryptocurrencies can go down as well as up, and you may lose some or all of your investment. 
+              Our trading signals are for informational purposes only and should not be considered as financial advice. 
+              Always conduct your own research and consult with a qualified financial advisor before making investment decisions. 
+              Never invest more than you can afford to lose.
+            </p>
           </div>
         </div>
       </div>
@@ -263,7 +266,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-white font-semibold mb-4">Quant Trading Bot</h3>
+              <h3 className="text-white font-semibold mb-4">QuantREX</h3>
               <p className="text-gray-400 text-sm">
                 Entropy-Adjusted Momentum Strategy with Advanced Risk Management.
               </p>
@@ -294,7 +297,7 @@ export default function LandingPage() {
           </div>
           <div className="mt-8 pt-8 border-t border-gray-800 text-center">
             <p className="text-gray-400 text-sm">
-              © 2024 Quant Trading Bot. All rights reserved.
+              © 2024 QuantREX. All rights reserved.
             </p>
           </div>
         </div>

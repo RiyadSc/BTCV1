@@ -176,9 +176,6 @@ export default function LivePriceDisplay() {
               {priceData.isUp ? '↗' : priceData.isDown ? '↘' : '→'}
             </span>
             <span className="font-semibold text-lg">
-              ${Math.abs(priceData.change).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-            <span className="text-sm font-medium bg-gray-100 px-2 py-1 rounded-full">
               {priceData.isUp ? '+' : ''}{priceData.changePercent.toFixed(2)}%
             </span>
           </div>

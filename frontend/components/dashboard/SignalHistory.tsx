@@ -17,7 +17,7 @@ interface HistoricalSignal {
     sentiment_index: number
     sentiment_state: string
     market_regime: string
-    price_level: number
+    price_level: number | null
   }
 }
 
@@ -35,7 +35,7 @@ export default function SignalHistory() {
       setError(null)
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-signal-history?timeframe=30d&limit=20`
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-signal-history?userId=${user.id}&limit=20`
       )
 
       if (!response.ok) {
@@ -110,10 +110,10 @@ export default function SignalHistory() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="text-center py-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No Signal History
+            No Signal History Yet
           </h3>
           <p className="text-gray-600">
-            Signal history will appear here once signals are generated.
+            You'll see trading signals here starting from when you joined. New signals are generated daily.
           </p>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function SignalHistory() {
                   {signal.signal_data.strength}
                 </span>
                 <span className="text-sm text-gray-500">
-                  {signal.signal_data.confidence_score}% confidence
+                  {(signal.signal_data.confidence_score * 100).toFixed(0)}% confidence
                 </span>
               </div>
               <span className="text-sm text-gray-500">
@@ -171,12 +171,7 @@ export default function SignalHistory() {
                   {signal.market_conditions.market_regime}
                 </span>
               </div>
-              <div>
-                <span className="text-gray-600">BTC Price:</span>
-                <span className="ml-2 font-medium">
-                  ${signal.market_conditions.price_level.toLocaleString()}
-                </span>
-              </div>
+
             </div>
           </div>
         ))}

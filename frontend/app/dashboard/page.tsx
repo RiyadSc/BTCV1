@@ -11,7 +11,7 @@ import SignalHistory from '@/components/dashboard/SignalHistory'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 export default function DashboardPage() {
-  const { user, loading: authLoading } = useAuth()
+  const { user, loading: authLoading, onboardingCompleted } = useAuth()
   const { data, loadMarketData, loadSignalData } = useDashboard()
   const router = useRouter()
 
@@ -20,7 +20,13 @@ export default function DashboardPage() {
       router.push('/auth/signin')
       return
     }
-  }, [user, authLoading, router])
+
+    // Redirect to onboarding if user hasn't completed it
+    if (!authLoading && user && onboardingCompleted === false) {
+      router.push('/onboarding')
+      return
+    }
+  }, [user, authLoading, onboardingCompleted, router])
 
   if (authLoading) {
     return (
