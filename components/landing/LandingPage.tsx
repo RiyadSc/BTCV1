@@ -106,17 +106,17 @@ export default function LandingPage() {
       {/* Performance Chart Section */}
       <div className="relative z-10 px-6 py-20">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold text-white text-center mb-16">
+          <h2 className="text-4xl font-bold text-white text-center mb-20">
             Performance Visualization
           </h2>
           <div className="flex justify-center">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 max-w-4xl">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-12 border border-white/20 max-w-6xl">
               <img 
                 src="/performance-chart.png" 
                 alt="Entropy-Adjusted Momentum Strategy Performance vs Buy & Hold BTC"
                 className="w-full h-auto rounded-lg shadow-2xl"
               />
-              <p className="text-gray-300 text-center mt-4 text-sm">
+              <p className="text-gray-300 text-center mt-6 text-base">
                 Performance comparison showing our strategy's risk-adjusted returns vs traditional buy & hold approach
               </p>
             </div>
