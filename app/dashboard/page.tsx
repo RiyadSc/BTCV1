@@ -68,48 +68,12 @@ export default function DashboardPage() {
         <div className="grid lg:grid-cols-1 gap-6">
           {/* Signal Card */}
           <div className="lg:col-span-1">
-            {data.currentSignal && (
-              <SignalCard signal={data.currentSignal} />
-            )}
-            {!data.currentSignal && !data.signalLoading && !data.signalError && (
-              <div className="card">
-                <div className="text-center py-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    No Signal Available Today
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    Daily trading signals are generated automatically. Check back later for today's signal.
-                  </p>
-                  <button 
-                    onClick={loadSignalData}
-                    className="btn-primary"
-                  >
-                    Refresh Signal
-                  </button>
-                </div>
-              </div>
-            )}
-            {data.signalLoading && (
-              <div className="card">
-                <div className="flex items-center justify-center py-8">
-                  <LoadingSpinner size="lg" />
-                  <span className="ml-3 text-gray-600">Generating trading signal...</span>
-                </div>
-              </div>
-            )}
-            {data.signalError && (
-              <div className="card border-danger-200 bg-danger-50">
-                <div className="text-center py-6">
-                  <div className="text-danger-600 mb-4">{data.signalError}</div>
-                  <button 
-                    onClick={loadSignalData}
-                    className="btn-primary"
-                  >
-                    Retry Signal Generation
-                  </button>
-                </div>
-              </div>
-            )}
+            <SignalCard 
+              signal={data.currentSignal} 
+              signalLoading={data.signalLoading}
+              signalError={data.signalError}
+              onRefresh={loadSignalData}
+            />
           </div>
 
           {/* Signal History */}

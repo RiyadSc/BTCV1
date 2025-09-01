@@ -99,38 +99,79 @@ interface SignalCardProps {
     }
     is_previous_day?: boolean
     message?: string
-  }
+  } | null
+  signalLoading: boolean
+  signalError: string | null
+  onRefresh: () => void
 }
 
-export default function SignalCard({ signal }: SignalCardProps) {
+export default function SignalCard({ signal, signalLoading, signalError, onRefresh }: SignalCardProps) {
   const countdown = useCountdownTo10PM(signal?.timestamp || '')
   
+  // Always render the header with timer
+  const renderHeader = () => (
+    <div className="flex items-center justify-between mb-8">
+      <div>
+        <div className="flex items-center gap-4 mb-2">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Trading Signal
+          </h2>
+          <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg">
+            <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
+            <span className="text-sm font-semibold">Next Update In:</span>
+            <span className="text-lg font-bold font-mono">{countdown}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  if (signalLoading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        {renderHeader()}
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600">Generating trading signal...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (signalError) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        {renderHeader()}
+        <div className="text-center py-6">
+          <div className="text-red-600 mb-4">{signalError}</div>
+          <button 
+            onClick={onRefresh}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+          >
+            Retry Signal Generation
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (!signal || !signal.signal_data) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        {/* Header with Timer - Always Visible */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <div className="flex items-center gap-4 mb-2">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Trading Signal
-              </h2>
-              <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg">
-                <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
-                <span className="text-sm font-semibold">Next Update In:</span>
-                <span className="text-lg font-bold font-mono">{countdown}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
+        {renderHeader()}
         <div className="text-center py-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No Signal Available
+            No Signal Available Today
           </h3>
-          <p className="text-gray-600">
-            Check back later for the latest trading signal
+          <p className="text-gray-600 mb-4">
+            Daily trading signals are generated automatically. Check back later for today's signal.
           </p>
+          <button
+            onClick={onRefresh}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+          >
+            Refresh Signal
+          </button>
         </div>
       </div>
     )
@@ -166,22 +207,7 @@ export default function SignalCard({ signal }: SignalCardProps) {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <div className="flex items-center gap-4 mb-2">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Trading Signal
-            </h2>
-            <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg">
-              <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
-              <span className="text-sm font-semibold">Next Update In:</span>
-              <span className="text-lg font-bold font-mono">{countdown}</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
+      {renderHeader()}
 
       {/* Signal Data */}
       <div className="grid md:grid-cols-2 gap-8 mb-8">
