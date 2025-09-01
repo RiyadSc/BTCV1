@@ -110,16 +110,10 @@ export default function SignalHistory() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="text-center py-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {user?.created_at && new Date(user.created_at).toDateString() === new Date().toDateString()
-              ? 'Welcome to QuantREX!'
-              : 'No Signal History Yet'
-            }
+            No Signal History Yet
           </h3>
           <p className="text-gray-600">
-            {user?.created_at && new Date(user.created_at).toDateString() === new Date().toDateString()
-              ? 'As a new member, you\'ll see trading signals here starting from your first daily signal. New signals are generated automatically at 10 PM EDT each day.'
-              : 'You\'ll see trading signals here starting from when you joined. New signals are generated daily at 10 PM EDT.'
-            }
+            You'll see trading signals here starting from when you joined. New signals are generated daily.
           </p>
         </div>
       </div>
