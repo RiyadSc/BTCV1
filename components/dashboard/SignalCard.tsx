@@ -10,17 +10,13 @@ const useCountdownTo10PM = () => {
     const calculateNext10PM = () => {
       const now = new Date()
       
-      // Get current time in EDT (Eastern Daylight Time)
-      const edtOffset = -4 // EDT is UTC-4
-      const utc = now.getTime() + (now.getTimezoneOffset() * 60000)
-      const edtTime = new Date(utc + (edtOffset * 3600000))
-      
       // Create target time for today at 10 PM EDT
-      const target = new Date(edtTime)
+      // Since we're working with local time, we need to account for EDT
+      const target = new Date(now)
       target.setHours(22, 0, 0, 0) // 10 PM
       
-      // If it's already past 10 PM EDT today, target tomorrow
-      if (edtTime >= target) {
+      // If it's already past 10 PM today, target tomorrow
+      if (now >= target) {
         target.setDate(target.getDate() + 1)
       }
       
@@ -31,12 +27,7 @@ const useCountdownTo10PM = () => {
       const now = new Date()
       const target = calculateNext10PM()
       
-      // Get current time in EDT
-      const edtOffset = -4 // EDT is UTC-4
-      const utc = now.getTime() + (now.getTimezoneOffset() * 60000)
-      const edtTime = new Date(utc + (edtOffset * 3600000))
-      
-      const diff = target.getTime() - edtTime.getTime()
+      const diff = target.getTime() - now.getTime()
       
       if (diff <= 0) {
         setCountdown('0h 0m')
@@ -147,20 +138,7 @@ export default function SignalCard({ signal }: SignalCardProps) {
     }
   }
 
-  const formatTimestamp = (timestamp: string) => {
-    try {
-      const date = new Date(timestamp)
-      return date.toLocaleString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    } catch {
-      return timestamp
-    }
-  }
+
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -177,20 +155,8 @@ export default function SignalCard({ signal }: SignalCardProps) {
               <span className="text-lg font-bold font-mono">{countdown}</span>
             </div>
           </div>
-          {signal.is_previous_day && (
-            <p className="text-sm text-amber-600 font-medium">
-              ⚠️ Previous day signal (current signal pending)
-            </p>
-          )}
         </div>
-        <div className="text-right">
-          <div className="text-sm text-gray-600 font-medium">
-            {formatTimestamp(signal.timestamp)}
-          </div>
-          <div className="text-xs text-gray-400 mt-1">
-            ID: {signal.signal_id.slice(0, 8)}...
-          </div>
-        </div>
+
       </div>
 
       {/* Signal Data */}
