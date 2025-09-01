@@ -8,20 +8,25 @@ const useCountdownTo10PM = (signalTimestamp: string) => {
   const [lastSignalTime, setLastSignalTime] = useState(signalTimestamp)
 
   useEffect(() => {
-    const calculateNext10PM = () => {
+    const calculateNext10PMEDT = () => {
       const now = new Date()
       
-      // Always target 10 PM EDT of the NEXT day after current signal
-      const target = new Date(now)
-      target.setHours(22, 0, 0, 0) // 10 PM
-      target.setDate(target.getDate() + 1) // Always next day
+      // 10 PM EDT = 2 AM UTC the following day
+      // Since EDT is UTC-4, we need to target 2 AM UTC
+      const target = new Date()
+      target.setUTCHours(2, 0, 0, 0) // 2 AM UTC = 10 PM EDT
+      
+      // If it's already past 2 AM UTC today, set target to tomorrow
+      if (now >= target) {
+        target.setUTCDate(target.getUTCDate() + 1)
+      }
       
       return target
     }
 
     const updateCountdown = () => {
       const now = new Date()
-      const target = calculateNext10PM()
+      const target = calculateNext10PMEDT()
       
       const diff = target.getTime() - now.getTime()
       
@@ -200,14 +205,9 @@ export default function SignalCard({ signal }: SignalCardProps) {
           </h3>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-gray-600 font-medium">Market Sentiment:</span>
-              <span className="font-medium text-gray-900">{signal.market_conditions.sentiment_state}</span>
-            </div>
-            <div className="flex justify-between items-center">
               <span className="text-gray-600 font-medium">Market Regime:</span>
               <span className="font-medium text-gray-900">{signal.market_conditions.market_regime}</span>
             </div>
-
           </div>
         </div>
       </div>
