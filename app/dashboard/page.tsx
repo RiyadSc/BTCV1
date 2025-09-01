@@ -75,10 +75,16 @@ export default function DashboardPage() {
               <div className="card">
                 <div className="text-center py-8">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    No Signal Available Today
+                    {user?.created_at && new Date(user.created_at).toDateString() === new Date().toDateString() 
+                      ? 'Welcome to QuantREX!' 
+                      : 'No Signal Available Today'
+                    }
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    Daily trading signals are generated automatically. Check back later for today's signal.
+                    {user?.created_at && new Date(user.created_at).toDateString() === new Date().toDateString()
+                      ? 'As a new member, you\'ll see your first trading signal after the next daily generation. Signals are created automatically at 10 PM EDT each day.'
+                      : 'Daily trading signals are generated automatically at 10 PM EDT. Check back later for today\'s signal.'
+                    }
                   </p>
                   <button 
                     onClick={loadSignalData}

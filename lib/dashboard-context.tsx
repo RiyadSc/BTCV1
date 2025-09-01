@@ -137,7 +137,12 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       setData(prev => ({ ...prev, signalLoading: true, signalError: null }))
       
       // Fetch the current daily signal from Supabase Edge Function (public endpoint)
-      const signalResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-daily-signal`)
+      // Include user's join date to filter signals appropriately
+      const signalResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-daily-signal`, {
+        headers: {
+          'X-User-Join-Date': user.created_at
+        }
+      })
 
       if (!signalResponse.ok) {
         throw new Error('Failed to fetch daily signal')
