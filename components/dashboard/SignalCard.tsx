@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from 'react'
 
-// Custom hook for countdown to 9 PM EDT
-const useCountdownTo9PM = () => {
+// Custom hook for countdown to 10 PM EDT
+const useCountdownTo10PM = () => {
   const [countdown, setCountdown] = useState('')
 
   useEffect(() => {
-    const calculateNext9PM = () => {
+    const calculateNext10PM = () => {
       const now = new Date()
       
       // Get current time in EDT (Eastern Daylight Time)
@@ -15,11 +15,11 @@ const useCountdownTo9PM = () => {
       const utc = now.getTime() + (now.getTimezoneOffset() * 60000)
       const edtTime = new Date(utc + (edtOffset * 3600000))
       
-      // Create target time for today at 9 PM EDT
+      // Create target time for today at 10 PM EDT
       const target = new Date(edtTime)
-      target.setHours(21, 0, 0, 0) // 9 PM
+      target.setHours(22, 0, 0, 0) // 10 PM
       
-      // If it's already past 9 PM EDT today, target tomorrow
+      // If it's already past 10 PM EDT today, target tomorrow
       if (edtTime >= target) {
         target.setDate(target.getDate() + 1)
       }
@@ -29,7 +29,7 @@ const useCountdownTo9PM = () => {
 
     const updateCountdown = () => {
       const now = new Date()
-      const target = calculateNext9PM()
+      const target = calculateNext10PM()
       
       // Get current time in EDT
       const edtOffset = -4 // EDT is UTC-4
@@ -104,7 +104,7 @@ interface SignalCardProps {
 }
 
 export default function SignalCard({ signal }: SignalCardProps) {
-  const countdown = useCountdownTo9PM()
+  const countdown = useCountdownTo10PM()
   
   if (!signal || !signal.signal_data) {
     return (
