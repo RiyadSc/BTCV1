@@ -103,11 +103,27 @@ interface SignalCardProps {
 }
 
 export default function SignalCard({ signal }: SignalCardProps) {
-  const countdown = useCountdownTo10PM(signal.timestamp)
+  const countdown = useCountdownTo10PM(signal?.timestamp || '')
   
   if (!signal || !signal.signal_data) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        {/* Header with Timer - Always Visible */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <div className="flex items-center gap-4 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Trading Signal
+              </h2>
+              <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg">
+                <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
+                <span className="text-sm font-semibold">Next Update In:</span>
+                <span className="text-lg font-bold font-mono">{countdown}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div className="text-center py-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             No Signal Available
