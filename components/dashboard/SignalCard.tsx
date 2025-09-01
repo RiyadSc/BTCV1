@@ -2,23 +2,19 @@
 
 import React, { useState, useEffect } from 'react'
 
-// Custom hook for countdown to 10 PM EDT
-const useCountdownTo10PM = () => {
+// Custom hook for countdown to 10 PM EDT of next day
+const useCountdownTo10PM = (signalTimestamp: string) => {
   const [countdown, setCountdown] = useState('')
+  const [lastSignalTime, setLastSignalTime] = useState(signalTimestamp)
 
   useEffect(() => {
     const calculateNext10PM = () => {
       const now = new Date()
       
-      // Create target time for today at 10 PM EDT
-      // Since we're working with local time, we need to account for EDT
+      // Always target 10 PM EDT of the NEXT day after current signal
       const target = new Date(now)
       target.setHours(22, 0, 0, 0) // 10 PM
-      
-      // If it's already past 10 PM today, target tomorrow
-      if (now >= target) {
-        target.setDate(target.getDate() + 1)
-      }
+      target.setDate(target.getDate() + 1) // Always next day
       
       return target
     }
@@ -47,7 +43,14 @@ const useCountdownTo10PM = () => {
     const interval = setInterval(updateCountdown, 60000)
     
     return () => clearInterval(interval)
-  }, [])
+  }, [lastSignalTime]) // Re-run when signal changes
+
+  // Reset countdown when new signal is detected
+  useEffect(() => {
+    if (signalTimestamp !== lastSignalTime) {
+      setLastSignalTime(signalTimestamp)
+    }
+  }, [signalTimestamp, lastSignalTime])
 
   return countdown
 }
@@ -95,7 +98,7 @@ interface SignalCardProps {
 }
 
 export default function SignalCard({ signal }: SignalCardProps) {
-  const countdown = useCountdownTo10PM()
+  const countdown = useCountdownTo10PM(signal.timestamp)
   
   if (!signal || !signal.signal_data) {
     return (
