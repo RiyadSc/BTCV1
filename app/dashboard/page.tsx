@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import SignalCard from '@/components/dashboard/SignalCard'
 import LivePriceDisplay from '@/components/dashboard/LivePriceDisplay'
+import TradingViewWidget from '@/components/dashboard/TradingViewWidget'
 import SignalHistory from '@/components/dashboard/SignalHistory'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
@@ -63,6 +64,14 @@ export default function DashboardPage() {
 
         {/* Live BTC Price Display */}
         <LivePriceDisplay />
+
+        {/* TradingView Chart Widget */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 className="text-xl font-bold text-gray-900 mb-4">BTC/USDT Chart</h3>
+          <div className="h-96">
+            <TradingViewWidget />
+          </div>
+        </div>
 
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-1 gap-6">
