@@ -160,18 +160,11 @@ export default function SignalHistory() {
                 </span>
               </div>
               <div>
-                <span className="text-gray-600">Market Sentiment:</span>
-                <span className="ml-2 font-medium">
-                  {signal.market_conditions.sentiment_state}
-                </span>
-              </div>
-              <div>
                 <span className="text-gray-600">Market Regime:</span>
                 <span className="ml-2 font-medium">
                   {signal.market_conditions.market_regime}
                 </span>
               </div>
-
             </div>
           </div>
         ))}

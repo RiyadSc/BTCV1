@@ -68,7 +68,7 @@ export default function DashboardPage() {
         {/* TradingView Chart Widget */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-xl font-bold text-gray-900 mb-4">BTC/USDT Chart</h3>
-          <div className="h-96">
+          <div className="h-[600px]">
             <TradingViewWidget />
           </div>
         </div>
