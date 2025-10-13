@@ -11,7 +11,6 @@ from datetime import datetime
 # Add the project root to the path
 sys.path.append(str(Path(__file__).parent))
 
-from fgi_strategy.data_fetcher import fetch_and_cache_fgi_data
 from fgi_strategy.backtest_engine import run_fgi_backtest, FGIConfig
 from fgi_strategy.reporter import generate_full_report
 
@@ -50,13 +49,13 @@ def main():
         logger.info("Loading BTC daily price data...")
         btc_data = load_btc_daily_data()
         
-        # 2. Fetch FGI data
-        logger.info("Fetching Fear and Greed Index data...")
-        fgi_data = fetch_and_cache_fgi_data(
-            cache_path="fgi_strategy/data/fgi_historical_real.parquet",
-            api_key=None,  # Using free alternative.me API
-            force_refresh=True  # Force fresh real data
-        )
+        # 2. Load FGI data from cached parquet
+        logger.info("Loading Fear and Greed Index data from parquet...")
+        fgi_parquet = Path("fgi_strategy/data/fgi_historical_real.parquet")
+        if not fgi_parquet.exists():
+            # fallback to historical parquet if real not present
+            fgi_parquet = Path("fgi_strategy/data/fgi_historical.parquet")
+        fgi_data = pd.read_parquet(fgi_parquet)
         
         if fgi_data.empty:
             logger.error("No FGI data available")
@@ -76,7 +75,7 @@ def main():
         logger.info(f"Strategy config: Entry≤{config.entry_threshold}, Exit≥{config.exit_threshold}, "
                    f"Position Size: {config.position_size_pct:.0%}, Intervals: {config.entry_interval_days}d, "
                    f"Starting Capital: ${config.initial_capital:,.0f}")
-        logger.info(f"Using REAL FGI data: {len(fgi_data)} records from {fgi_data.index.min()} to {fgi_data.index.max()}")
+        logger.info(f"Loaded FGI data: {len(fgi_data)} records from {fgi_data.index.min()} to {fgi_data.index.max()}")
         
         # 4. Run backtest
         logger.info("Running backtest...")
@@ -96,6 +95,13 @@ def main():
             show_plots=True
         )
         
+        # 5b. Export trades (including realized PnL flags)
+        trades = results.get('trades')
+        if trades is not None and not trades.empty:
+            trades_csv = Path(output_dir) / 'trades.csv'
+            trades.to_csv(trades_csv)
+            logger.info(f"Exported trades to {trades_csv}")
+        
         # 6. Print key results
         print("\n" + "="*60)
         print("FGI STRATEGY BACKTEST COMPLETED")
@@ -107,6 +113,11 @@ def main():
         print(f"Max Drawdown: {results['max_drawdown']:.2%}")
         print(f"Number of Trades: {results['num_trades']}")
         print(f"Win Rate: {results['win_rate']:.1%}")
+        if trades is not None and not trades.empty:
+            num_buy = len(trades[trades['type']=='BUY'])
+            num_sell = len(trades[trades['type']=='SELL'])
+            num_sell_wins = int(trades[(trades['type']=='SELL') & (trades.get('win', False))].shape[0]) if 'win' in trades.columns else 'n/a'
+            print(f"BUY trades: {num_buy}, SELL trades: {num_sell}, SELL winners: {num_sell_wins}")
         print(f"\nReports saved to: {output_dir}")
         print("="*60)
         

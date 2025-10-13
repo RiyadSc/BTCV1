@@ -1,10 +1,10 @@
 """
-Fear and Greed Index Backtest Engine
+Enhanced FGI Backtest Engine with Advanced Features and Winner Tracking
 """
 from __future__ import annotations
 import pandas as pd
 import numpy as np
-from typing import Tuple, Dict, Any, Optional
+from typing import Dict, Any, Optional
 from dataclasses import dataclass
 import logging
 
@@ -12,20 +12,33 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class FGIConfig:
-    """Configuration for FGI strategy."""
-    entry_threshold: float = 20.0  # Enter when FGI <= 20
-    exit_threshold: float = 80.0   # Exit when FGI >= 80
-    position_size_pct: float = 0.10  # 10% of equity per entry/exit
-    entry_interval_days: int = 1     # Enter every day while FGI <= 20
-    exit_interval_days: int = 1      # Exit every day while FGI >= 80
-    initial_capital: float = 100000.0  # Starting capital
-    transaction_cost_pct: float = 0.001  # 0.1% transaction costs
+class EnhancedFGIConfig:
+    """Enhanced configuration for FGI strategy."""
+    ultra_fear_threshold: float = 15.0
+    fear_threshold: float = 25.0
+    greed_threshold: float = 75.0
+    ultra_greed_threshold: float = 85.0
+    ultra_fear_size: float = 0.15
+    fear_size: float = 0.10
+    light_fear_size: float = 0.05
+    greed_sell_size: float = 0.10
+    ultra_greed_sell_size: float = 0.15
+    max_btc_exposure: float = 0.80
+    min_cash_reserve: float = 0.20
+    drawdown_threshold: float = 0.50
+    volatility_lookback: int = 30
+    momentum_lookback: int = 30
+    min_momentum_buy: float = -0.30
+    recovery_momentum: float = -0.15
+    trend_confirmation: int = 7
+    initial_capital: float = 100000.0
+    transaction_cost_pct: float = 0.001
+    fgi_smoothing_days: int = 3
 
 
 @dataclass
-class Position:
-    """Represents a trading position."""
+class EnhancedPosition:
+    """Enhanced position tracking with average cost basis."""
     shares: float = 0.0
     avg_price: float = 0.0
     total_cost: float = 0.0
@@ -42,11 +55,11 @@ class Position:
         self.shares += shares
     
     def remove_shares(self, shares: float) -> float:
-        """Remove shares from position. Returns proceeds."""
+        """Remove shares from position. Returns cost basis of removed shares."""
         if shares > self.shares:
             shares = self.shares
         
-        proceeds = shares * self.avg_price  # Use avg price for consistent tracking
+        proceeds = shares * self.avg_price
         self.shares -= shares
         self.total_cost -= proceeds
         
@@ -66,36 +79,34 @@ class Position:
         return self.market_value(current_price) - self.total_cost
 
 
-class FGIBacktester:
-    """Backtester for Fear and Greed Index strategy."""
+class EnhancedFGIBacktester:
+    """Enhanced backtester with winner tracking."""
     
-    def __init__(self, config: FGIConfig):
+    def __init__(self, config: EnhancedFGIConfig):
         self.config = config
         self.reset()
     
     def reset(self) -> None:
         """Reset backtest state."""
         self.cash = self.config.initial_capital
-        self.position = Position()
+        self.position = EnhancedPosition()
         self.equity_history = []
         self.trades = []
         self.last_entry_date = None
         self.last_exit_date = None
-        self.in_entry_zone = False
-        self.in_exit_zone = False
     
     def run_backtest(self, price_data: pd.DataFrame, fgi_data: pd.DataFrame) -> Dict[str, Any]:
         """
-        Run the FGI backtest.
+        Run enhanced FGI backtest.
         
         Args:
-            price_data: DataFrame with daily BTC prices (columns: o,h,l,c,v)
-            fgi_data: DataFrame with FGI values (column: fgi_value)
+            price_data: DataFrame with daily BTC prices
+            fgi_data: DataFrame with FGI values
             
         Returns:
-            Dictionary with backtest results and metrics
+            Dictionary with backtest results
         """
-        logger.info("Starting FGI backtest")
+        logger.info("Starting Enhanced FGI backtest")
         self.reset()
         
         # Align data
@@ -104,12 +115,20 @@ class FGIBacktester:
             logger.error("No aligned data for backtest")
             return {}
         
+        # Add smoothed FGI
+        aligned_data['fgi_smooth'] = aligned_data['fgi_value'].rolling(
+            window=self.config.fgi_smoothing_days, min_periods=1
+        ).mean()
+        
+        # Add momentum
+        aligned_data['momentum'] = aligned_data['close'].pct_change(self.config.momentum_lookback)
+        
         logger.info(f"Backtesting from {aligned_data.index[0]} to {aligned_data.index[-1]}")
         logger.info(f"Total trading days: {len(aligned_data)}")
         
         # Run day-by-day simulation
         for date, row in aligned_data.iterrows():
-            self._process_day(date, row)
+            self._process_day(date, row, aligned_data)
         
         # Calculate final metrics
         results = self._calculate_metrics(aligned_data)
@@ -121,66 +140,52 @@ class FGIBacktester:
         return results
     
     def _align_data(self, price_data: pd.DataFrame, fgi_data: pd.DataFrame) -> pd.DataFrame:
-        """Align price and FGI data on the same dates."""
-        # Ensure both have datetime index
+        """Align price and FGI data."""
         price_idx = pd.to_datetime(price_data.index).normalize()
         fgi_idx = pd.to_datetime(fgi_data.index).normalize()
         
-        # Create aligned DataFrame
         common_dates = price_idx.intersection(fgi_idx)
         
         if len(common_dates) == 0:
             logger.error("No common dates between price and FGI data")
             return pd.DataFrame()
         
-        # Reindex both to common dates
         price_aligned = price_data.reindex(price_idx).loc[common_dates]
         fgi_aligned = fgi_data.reindex(fgi_idx).loc[common_dates]
         
-        # Combine into single DataFrame
         aligned = pd.DataFrame(index=common_dates)
         aligned['close'] = price_aligned['c'].values
         aligned['fgi_value'] = fgi_aligned['fgi_value'].values
         
-        # Forward fill any missing values
         aligned = aligned.ffill().dropna()
         
         logger.info(f"Aligned data: {len(aligned)} days from {aligned.index[0]} to {aligned.index[-1]}")
         return aligned
     
-    def _process_day(self, date: pd.Timestamp, row: pd.Series) -> None:
-        """Process a single trading day."""
+    def _process_day(self, date: pd.Timestamp, row: pd.Series, full_data: pd.DataFrame) -> None:
+        """Process a single trading day with enhanced logic."""
         price = row['close']
-        fgi = row['fgi_value']
+        fgi = row['fgi_smooth']
+        momentum = row['momentum'] if not pd.isna(row['momentum']) else 0
         
-        # Check entry conditions - buy 10% of total equity daily when FGI <= 20
-        if fgi <= self.config.entry_threshold:
-            if not self.in_entry_zone:
-                self.in_entry_zone = True
-                self.last_entry_date = None  # Reset to allow immediate entry
-            
-            # Check if enough time has passed since last entry (daily)
-            if (self.last_entry_date is None or 
-                (date - self.last_entry_date).days >= self.config.entry_interval_days):
-                self._execute_entry(date, price)
-                self.last_entry_date = date
+        # Dynamic position sizing based on FGI
+        if fgi <= self.config.ultra_fear_threshold:
+            buy_size = self.config.ultra_fear_size
+        elif fgi <= self.config.fear_threshold:
+            buy_size = self.config.fear_size
         else:
-            self.in_entry_zone = False
+            buy_size = 0
         
-        # Check exit conditions - sell 10% of position daily when FGI >= 80
-        if self.position.shares > 0 and fgi >= self.config.exit_threshold:
-            if not self.in_exit_zone:
-                self.in_exit_zone = True
-                self.last_exit_date = None  # Reset to allow immediate exit
-            
-            # Check if enough time has passed since last exit (daily)
-            if (self.last_exit_date is None or 
-                (date - self.last_exit_date).days >= self.config.exit_interval_days):
-                self._execute_exit(date, price)
-                self.last_exit_date = date
-        else:
-            if fgi < self.config.exit_threshold:
-                self.in_exit_zone = False
+        # Entry logic with momentum filter
+        if buy_size > 0 and momentum >= self.config.min_momentum_buy:
+            self._execute_entry(date, price, buy_size)
+        
+        # Exit logic
+        if self.position.shares > 0:
+            if fgi >= self.config.ultra_greed_threshold:
+                self._execute_exit(date, price, self.config.ultra_greed_sell_size)
+            elif fgi >= self.config.greed_threshold:
+                self._execute_exit(date, price, self.config.greed_sell_size)
         
         # Record daily equity
         total_equity = self.cash + self.position.market_value(price)
@@ -190,28 +195,25 @@ class FGIBacktester:
             'cash': self.cash,
             'position_value': self.position.market_value(price),
             'price': price,
-            'fgi': fgi,
+            'fgi': row['fgi_value'],
             'shares': self.position.shares
         })
     
-    def _execute_entry(self, date: pd.Timestamp, price: float) -> None:
+    def _execute_entry(self, date: pd.Timestamp, price: float, size_pct: float) -> None:
         """Execute entry trade."""
         total_equity = self.cash + self.position.market_value(price)
-        trade_amount = total_equity * self.config.position_size_pct
+        trade_amount = total_equity * size_pct
         
         if trade_amount > self.cash:
-            trade_amount = self.cash  # Use available cash
+            trade_amount = self.cash
         
-        if trade_amount < 1.0:  # Minimum trade size
+        if trade_amount < 1.0:
             return
         
-        # Calculate transaction costs
         transaction_cost = trade_amount * self.config.transaction_cost_pct
         net_amount = trade_amount - transaction_cost
-        
         shares_to_buy = net_amount / price
         
-        # Execute trade
         self.cash -= trade_amount
         self.position.add_shares(shares_to_buy, price)
         
@@ -223,36 +225,34 @@ class FGIBacktester:
             'amount': trade_amount,
             'cost': transaction_cost,
             'cash_after': self.cash,
-            'total_shares': self.position.shares
+            'total_shares': self.position.shares,
+            'avg_price': self.position.avg_price
         }
         self.trades.append(trade)
         
-        logger.debug(f"{date.date()}: BUY {shares_to_buy:.4f} shares at ${price:.2f} "
-                    f"(${trade_amount:.2f}, cost: ${transaction_cost:.2f})")
+        logger.debug(f"{date.date()}: BUY {shares_to_buy:.4f} shares at ${price:.2f}")
     
-    def _execute_exit(self, date: pd.Timestamp, price: float) -> None:
-        """Execute exit trade - sell 10% of current position value."""
+    def _execute_exit(self, date: pd.Timestamp, price: float, size_pct: float) -> None:
+        """Execute exit trade with P&L tracking."""
         if self.position.shares <= 0:
             return
         
-        # Sell 10% of current position shares (not 10% of total equity)
-        shares_to_sell = self.position.shares * self.config.position_size_pct
+        shares_to_sell = self.position.shares * size_pct
         if shares_to_sell > self.position.shares:
             shares_to_sell = self.position.shares
         
-        # Minimum trade size check
         gross_proceeds = shares_to_sell * price
-        if gross_proceeds < 1.0:  # Skip tiny trades
+        if gross_proceeds < 1.0:
             return
         
-        # Calculate proceeds
         transaction_cost = gross_proceeds * self.config.transaction_cost_pct
-        # Capture average price before reducing shares to compute realized P&L for this partial exit
-        avg_price_before = self.position.avg_price
-        realized_pnl = (price - avg_price_before) * shares_to_sell - transaction_cost
         net_proceeds = gross_proceeds - transaction_cost
         
-        # Execute trade
+        # Track P&L before removing shares
+        avg_price_before = self.position.avg_price
+        realized_pnl = (price - avg_price_before) * shares_to_sell - transaction_cost
+        is_winner = realized_pnl > 0
+        
         self.position.remove_shares(shares_to_sell)
         self.cash += net_proceeds
         
@@ -263,15 +263,17 @@ class FGIBacktester:
             'price': price,
             'amount': gross_proceeds,
             'cost': transaction_cost,
+            'avg_price': avg_price_before,
             'realized_pnl': realized_pnl,
-            'win': realized_pnl > 0,
+            'pnl_pct': (price / avg_price_before - 1) if avg_price_before > 0 else 0,
+            'win': is_winner,
             'cash_after': self.cash,
             'total_shares': self.position.shares
         }
         self.trades.append(trade)
         
-        logger.debug(f"{date.date()}: SELL {shares_to_sell:.4f} shares at ${price:.2f} "
-                    f"(${gross_proceeds:.2f}, cost: ${transaction_cost:.2f})")
+        logger.debug(f"{date.date()}: SELL {shares_to_sell:.4f} shares at ${price:.2f}, "
+                    f"PnL: ${realized_pnl:.2f} ({'WIN' if is_winner else 'LOSS'})")
     
     def _calculate_metrics(self, data: pd.DataFrame) -> Dict[str, Any]:
         """Calculate backtest performance metrics."""
@@ -280,42 +282,35 @@ class FGIBacktester:
         
         equity_df = pd.DataFrame(self.equity_history).set_index('date')
         
-        # Basic metrics
         initial_equity = self.config.initial_capital
         final_equity = equity_df['equity'].iloc[-1]
         total_return = (final_equity / initial_equity) - 1
         
-        # Buy and hold comparison
+        # Buy and hold
         initial_price = data['close'].iloc[0]
         final_price = data['close'].iloc[-1]
         bh_return = (final_price / initial_price) - 1
         
-        # Calculate daily returns
+        # Daily returns
         equity_df['returns'] = equity_df['equity'].pct_change()
-        data_returns = data['close'].pct_change()
         
         # Risk metrics
         annual_return = (1 + total_return) ** (365.25 / len(data)) - 1
         volatility = equity_df['returns'].std() * np.sqrt(365.25)
         sharpe_ratio = annual_return / volatility if volatility > 0 else 0
         
-        # Drawdown analysis
+        # Drawdown
         rolling_max = equity_df['equity'].expanding().max()
         drawdown = (equity_df['equity'] / rolling_max) - 1
         max_drawdown = drawdown.min()
         
-        # Win rate (profitable trades)
+        # Win rate from SELL trades with realized P&L
         trade_df = pd.DataFrame(self.trades)
+        win_rate = 0
         if not trade_df.empty:
             sell_trades = trade_df[trade_df['type'] == 'SELL']
-            if not sell_trades.empty:
-                # This is simplified - more complex P&L calculation would track individual position performance
-                profitable_trades = len(sell_trades[sell_trades['price'] > sell_trades['price'].shift(1)])
-                win_rate = profitable_trades / len(sell_trades) if len(sell_trades) > 0 else 0
-            else:
-                win_rate = 0
-        else:
-            win_rate = 0
+            if not sell_trades.empty and 'win' in sell_trades.columns:
+                win_rate = sell_trades['win'].sum() / len(sell_trades)
         
         return {
             'initial_equity': initial_equity,
@@ -334,59 +329,3 @@ class FGIBacktester:
             'final_position_shares': self.position.shares,
             'final_cash': self.cash
         }
-
-
-def run_fgi_backtest(price_data: pd.DataFrame, 
-                    fgi_data: pd.DataFrame, 
-                    config: Optional[FGIConfig] = None) -> Dict[str, Any]:
-    """
-    Convenience function to run FGI backtest.
-    
-    Args:
-        price_data: Daily BTC price data
-        fgi_data: Fear and Greed Index data
-        config: Strategy configuration (uses default if None)
-        
-    Returns:
-        Backtest results dictionary
-    """
-    if config is None:
-        config = FGIConfig()
-    
-    backtester = FGIBacktester(config)
-    return backtester.run_backtest(price_data, fgi_data)
-
-
-if __name__ == "__main__":
-    # Test with sample data
-    logging.basicConfig(level=logging.INFO)
-    
-    # Create sample data for testing
-    dates = pd.date_range('2023-01-01', '2024-01-01', freq='D')
-    
-    # Sample price data (trending upward with volatility)
-    np.random.seed(42)
-    prices = 30000 * np.exp(np.cumsum(np.random.normal(0.001, 0.03, len(dates))))
-    price_data = pd.DataFrame({
-        'o': prices,
-        'h': prices * 1.02,
-        'l': prices * 0.98,
-        'c': prices,
-        'v': np.random.uniform(1000, 5000, len(dates))
-    }, index=dates)
-    
-    # Sample FGI data with cycles
-    fgi_values = 50 + 30 * np.sin(np.linspace(0, 4 * np.pi, len(dates))) + np.random.normal(0, 5, len(dates))
-    fgi_values = np.clip(fgi_values, 0, 100)
-    fgi_data = pd.DataFrame({'fgi_value': fgi_values}, index=dates)
-    
-    # Run backtest
-    results = run_fgi_backtest(price_data, fgi_data)
-    
-    print("=== FGI Strategy Backtest Results ===")
-    print(f"Total Return: {results['total_return']:.2%}")
-    print(f"Buy & Hold Return: {results['buy_hold_return']:.2%}")
-    print(f"Excess Return: {results['excess_return']:.2%}")
-    print(f"Sharpe Ratio: {results['sharpe_ratio']:.2f}")
-    print(f"Max Drawdown: {results['max_drawdown']:.2%}")
-    print(f"Number of Trades: {results['num_trades']}")
