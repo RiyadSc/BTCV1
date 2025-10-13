@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import TelegramLoginButton from './TelegramLoginButton'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -18,6 +17,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [telegramLinked, setTelegramLinked] = useState(false)
   const [showTelegramModal, setShowTelegramModal] = useState(false)
   const [linking, setLinking] = useState(false)
+  const [linkCode, setLinkCode] = useState<string | null>(null)
+  const [codeExpiry, setCodeExpiry] = useState<Date | null>(null)
 
   useEffect(() => {
     if (user) {
@@ -48,10 +49,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }
 
-  const handleTelegramLogin = async (telegramAuth: any) => {
+  const generateLinkCode = async () => {
     try {
       setLinking(true)
-      console.log('Telegram auth data received:', telegramAuth)
+      setLinkCode(null)
+      setCodeExpiry(null)
 
       const { data: { session } } = await supabase.auth.getSession()
       
@@ -59,34 +61,28 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         throw new Error('Not authenticated')
       }
 
-      console.log('Sending link request to edge function...')
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/link-telegram`,
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/generate-telegram-code`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${session.access_token}`
-          },
-          body: JSON.stringify({ telegramAuth })
+          }
         }
       )
 
       const result = await response.json()
-      console.log('Link response:', result)
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to link Telegram account')
+        throw new Error(result.error || 'Failed to generate code')
       }
 
-      // Refresh the telegram link status
-      await checkTelegramLink()
-      setShowTelegramModal(false)
-
-      alert('✅ Telegram account linked successfully! You can now receive daily signals.')
+      setLinkCode(result.code)
+      setCodeExpiry(new Date(result.expires_at))
     } catch (err: any) {
-      console.error('Error linking Telegram:', err)
-      alert(`❌ Failed to link Telegram: ${err.message}`)
+      console.error('Error generating code:', err)
+      alert(`❌ Failed to generate code: ${err.message}`)
     } finally {
       setLinking(false)
     }
@@ -123,7 +119,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex items-center gap-4">
               {/* Telegram Link Button */}
               <button
-                onClick={() => telegramLinked ? null : setShowTelegramModal(true)}
+                onClick={() => {
+                  if (!telegramLinked) {
+                    setShowTelegramModal(true)
+                    generateLinkCode()
+                  }
+                }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   telegramLinked 
                     ? 'bg-green-50 text-green-700 cursor-default' 
@@ -228,33 +229,52 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </button>
             </div>
 
-            <p className="text-sm text-gray-600 mb-6">
-              Link your Telegram account to receive daily trading signals directly on Telegram.
-            </p>
-
-            <div className="flex flex-col items-center gap-4 py-6">
-              {!linking && process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME ? (
-                <TelegramLoginButton
-                  botUsername={process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME}
-                  onAuth={handleTelegramLogin}
-                />
-              ) : !linking ? (
-                <div className="text-center text-red-600 text-sm">
-                  ⚠️ Telegram bot not configured. Please add NEXT_PUBLIC_TELEGRAM_BOT_USERNAME to your .env.local file.
+            {linking ? (
+              <div className="flex flex-col items-center gap-4 py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p className="text-sm text-gray-600">Generating your code...</p>
+              </div>
+            ) : linkCode ? (
+              <>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+                  <p className="text-sm text-blue-900 mb-4 text-center">
+                    Your link code (expires in 10 minutes):
+                  </p>
+                  <div className="bg-white rounded-lg p-4 mb-4">
+                    <p className="text-4xl font-bold text-center text-blue-600 tracking-wider">
+                      {linkCode}
+                    </p>
+                  </div>
+                  <div className="space-y-3 text-sm text-blue-800">
+                    <p className="font-semibold">Follow these steps:</p>
+                    <ol className="list-decimal list-inside space-y-2">
+                      <li>Open Telegram and find <span className="font-mono bg-blue-100 px-2 py-1 rounded">@{process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'quantrexxbot'}</span></li>
+                      <li>Send this message: <span className="font-mono bg-blue-100 px-2 py-1 rounded">/link {linkCode}</span></li>
+                      <li>You'll receive a confirmation message</li>
+                    </ol>
+                  </div>
                 </div>
-              ) : null}
 
-              {linking && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                  <span>Linking your account...</span>
+                <div className="flex gap-3">
+                  <button
+                    onClick={generateLinkCode}
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                  >
+                    Generate New Code
+                  </button>
+                  <a
+                    href={`https://t.me/${process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'quantrexxbot'}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  >
+                    Open Bot in Telegram
+                  </a>
                 </div>
-              )}
-            </div>
-
-            <p className="text-xs text-gray-500 text-center mt-4">
-              By linking your Telegram account, you authorize QuantREX to send you trading signals and notifications.
-            </p>
+              </>
+            ) : (
+              <p className="text-center text-gray-600 py-8">Click "Link Telegram" to generate your code</p>
+            )}
           </div>
         </div>
       )}
