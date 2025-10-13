@@ -19,15 +19,25 @@ export default function LivePriceDisplay() {
   useEffect(() => {
     let ws: WebSocket | null = null
     let fallbackInterval: NodeJS.Timeout | null = null
+    let wsTimeout: NodeJS.Timeout | null = null
 
     const connectWebSocket = () => {
       try {
         ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker')
         
+        // If WebSocket doesn't connect in 3 seconds, start fallback
+        wsTimeout = setTimeout(() => {
+          if (loading) {
+            console.warn('WebSocket taking too long, starting API fallback')
+            startFallbackAPI()
+          }
+        }, 3000)
+
         ws.onopen = () => {
           console.log('WebSocket connected to Binance')
           setWsConnected(true)
           setError(null)
+          if (wsTimeout) clearTimeout(wsTimeout)
         }
 
         ws.onmessage = (event) => {
@@ -36,7 +46,7 @@ export default function LivePriceDisplay() {
             if (data.c) { // Close price
               const currentPrice = parseFloat(data.c)
               // Use Binance's calculated values directly
-              const priceChange = parseFloat(data.P) // 24h price change
+              const priceChange = parseFloat(data.p) // 24h price change (absolute)
               const priceChangePercent = parseFloat(data.P) // 24h price change percent
               
               // Validate the data
@@ -61,19 +71,25 @@ export default function LivePriceDisplay() {
 
         ws.onerror = (event) => {
           console.error('WebSocket error:', event)
-          setError('WebSocket connection error')
           setWsConnected(false)
+          if (wsTimeout) clearTimeout(wsTimeout)
+          // Immediately start fallback
+          startFallbackAPI()
         }
 
         ws.onclose = () => {
           console.log('WebSocket disconnected')
           setWsConnected(false)
+          if (wsTimeout) clearTimeout(wsTimeout)
           // Fallback to REST API
-          startFallbackAPI()
+          if (!fallbackInterval) {
+            startFallbackAPI()
+          }
         }
       } catch (error) {
         console.error('WebSocket connection failed:', error)
-        setError('WebSocket connection failed')
+        setWsConnected(false)
+        if (wsTimeout) clearTimeout(wsTimeout)
         startFallbackAPI()
       }
     }
@@ -123,6 +139,9 @@ export default function LivePriceDisplay() {
       }
       if (fallbackInterval) {
         clearInterval(fallbackInterval)
+      }
+      if (wsTimeout) {
+        clearTimeout(wsTimeout)
       }
     }
   }, [])

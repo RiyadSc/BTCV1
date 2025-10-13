@@ -34,13 +34,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         .eq('is_active', true)
         .single()
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error checking telegram link:', error)
+      // Ignore errors if table doesn't exist (PGRST116) or any other error
+      if (error) {
+        console.log('Telegram check skipped:', error.code || error.message)
+        setTelegramLinked(false)
+        return
       }
 
       setTelegramLinked(!!data)
     } catch (err) {
-      console.error('Error checking telegram link:', err)
+      console.log('Error checking telegram link:', err)
+      setTelegramLinked(false)
     }
   }
 
