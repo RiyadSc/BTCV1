@@ -2,50 +2,13 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { useAuth } from '@/lib/auth-context'
 
 export default function SignUpPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
-  const { signUp, signInWithGoogle } = useAuth()
-  const router = useRouter()
-
-  const handleEmailSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
-      setLoading(false)
-      return
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long')
-      setLoading(false)
-      return
-    }
-
-    try {
-      const { error } = await signUp(email, password)
-      if (error) {
-        setError(error.message)
-      } else {
-        setSuccess(true)
-        // Don't redirect immediately - let user verify email
-      }
-    } catch (err) {
-      setError('An unexpected error occurred')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { signInWithGoogle } = useAuth()
 
   const handleGoogleSignUp = async () => {
     setLoading(true)
@@ -55,42 +18,28 @@ export default function SignUpPage() {
       const { error } = await signInWithGoogle()
       if (error) {
         setError(error.message)
+        setLoading(false)
       }
+      // Don't redirect manually - Google OAuth will handle the redirect
     } catch (err) {
       setError('Google sign-up failed')
-    } finally {
       setLoading(false)
     }
   }
 
-  if (success) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h2>
-            <p className="text-gray-600 mb-6">
-              We've sent you a verification link. Please check your email and click the link to verify your account.
-            </p>
-            <Link
-              href="/auth/signin"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
-            >
-              Back to Sign In
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      {/* Logo */}
+      <div className="absolute top-6 right-6">
+        <Image
+          src="/logo2.png"
+          alt="QuantREX Logo"
+          width={55}
+          height={55}
+          className="object-contain"
+        />
+      </div>
+      
       {/* Go back link */}
       <div className="absolute top-6 left-6">
         <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">

@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function LandingPage() {
   const handleGoogleSignIn = async () => {
@@ -15,6 +16,13 @@ export default function LandingPage() {
       <nav className="relative z-10 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
+            <Image
+              src="/logo1.png"
+              alt="QuantREX Logo"
+              width={32}
+              height={32}
+              className="object-contain mr-3"
+            />
             <h1 className="text-2xl font-bold text-white">QuantREX</h1>
           </div>
           <div className="flex items-center space-x-4">

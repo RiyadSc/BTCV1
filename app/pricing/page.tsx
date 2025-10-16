@@ -2,10 +2,22 @@
 
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
+      {/* Logo */}
+      <div className="absolute top-6 right-6">
+        <Image
+          src="/logo2.png"
+          alt="QuantREX Logo"
+          width={55}
+          height={55}
+          className="object-contain"
+        />
+      </div>
+      
       {/* Go back link */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">

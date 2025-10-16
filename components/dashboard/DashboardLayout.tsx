@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
@@ -110,6 +111,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex items-center">
               <Link href="/dashboard" className="flex-shrink-0 flex items-center">
                 <h1 className="text-xl font-bold text-gray-900">QuantREX</h1>
+                <Image
+                  src="/logo2.png"
+                  alt="QuantREX Logo"
+                  width={24}
+                  height={24}
+                  className="object-contain ml-2"
+                />
               </Link>
               
 

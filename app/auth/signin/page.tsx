@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 
@@ -50,6 +51,17 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      {/* Logo */}
+      <div className="absolute top-6 right-6">
+        <Image
+          src="/logo2.png"
+          alt="QuantREX Logo"
+          width={55}
+          height={55}
+          className="object-contain"
+        />
+      </div>
+      
       {/* Go back link */}
       <div className="absolute top-6 left-6">
         <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
