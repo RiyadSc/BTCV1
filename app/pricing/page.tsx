@@ -142,25 +142,13 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* Membership Requirements Disclaimer */}
-        <div className="bg-gray-50 rounded-lg p-6 mt-8 text-center">
-          <div className="max-w-2xl mx-auto">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Membership Requirements
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Membership is reserved for traders deploying at least $10,000 in capital. This ensures signals are used as intended.
-            </p>
-          </div>
-        </div>
-
         {/* CTA Section */}
         <div className="text-center mt-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Ready to Access Professional-Grade Returns?
           </h2>
           <p className="text-xl text-gray-600 mb-8">
-            Join traders who trust our entropy-adjusted momentum strategy for superior performance.
+            Deploy institutional-grade quantitative strategies engineered with rigorous academic methodology and battle-tested risk protocols.
           </p>
           <Link
             href="/auth/signup"

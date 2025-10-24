@@ -13,28 +13,28 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
       {/* Navigation */}
-      <nav className="relative z-10 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center">
+      <nav className="relative z-10 px-4 sm:px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center min-w-0 flex-shrink">
             <Image
               src="/logo1.png"
               alt="QuantREX Logo"
-              width={32}
-              height={32}
-              className="object-contain mr-3"
+              width={28}
+              height={28}
+              className="object-contain mr-2 flex-shrink-0"
             />
-            <h1 className="text-2xl font-bold text-white">QuantREX</h1>
+            <h1 className="text-lg sm:text-2xl font-bold text-white truncate">QuantREX</h1>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
             <Link 
               href="/auth/signin"
-              className="text-white hover:text-blue-300 transition-colors"
+              className="text-white hover:text-blue-300 transition-colors text-sm sm:text-base whitespace-nowrap"
             >
               Sign In
             </Link>
             <Link 
               href="/auth/signup"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base whitespace-nowrap"
             >
               Get Started
             </Link>
