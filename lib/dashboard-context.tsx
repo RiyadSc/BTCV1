@@ -136,7 +136,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     try {
       setData(prev => ({ ...prev, signalLoading: true, signalError: null }))
       
-      // Fetch the current daily signal from Supabase Edge Function (public endpoint)
+      // Fetch the current weekly signal from Supabase Edge Function (public endpoint)
       const signalResponse = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/get-daily-signal`, {
         headers: {
           'X-User-Join-Date': user.created_at
@@ -144,7 +144,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       })
 
       if (!signalResponse.ok) {
-        throw new Error('Failed to fetch daily signal')
+        throw new Error('Failed to fetch weekly signal')
       }
 
       const signalData = await signalResponse.json()
@@ -174,7 +174,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       console.error('Signal data error:', err)
       setData(prev => ({
         ...prev,
-        signalError: 'Failed to load daily signal',
+        signalError: 'Failed to load weekly signal',
         signalLoading: false
       }))
     }

@@ -2,23 +2,27 @@
 
 import React, { useState, useEffect } from 'react'
 
-// Custom hook for countdown to 10 PM EDT of next day
-const useCountdownTo10PM = (signalTimestamp: string) => {
+// Custom hook for countdown to next Sunday 10 PM EDT (weekly signal)
+const useCountdownToSunday = (signalTimestamp: string) => {
   const [countdown, setCountdown] = useState('')
   const [lastSignalTime, setLastSignalTime] = useState(signalTimestamp)
 
   useEffect(() => {
-    const calculateNext10PMEDT = () => {
+    const calculateNextSunday10PMEDT = () => {
       const now = new Date()
+      const dayOfWeek = now.getUTCDay() // 0 = Sunday
       
-      // 10 PM EDT = 2 AM UTC the following day
-      // Since EDT is UTC-4, we need to target 2 AM UTC
+      // Calculate days until next Sunday
+      const daysUntilSunday = dayOfWeek === 0 ? 7 : 7 - dayOfWeek
+      
+      // Target is next Sunday at 10 PM EDT = Monday 2 AM UTC
       const target = new Date()
-      target.setUTCHours(2, 0, 0, 0) // 2 AM UTC = 10 PM EDT
+      target.setUTCDate(target.getUTCDate() + daysUntilSunday)
+      target.setUTCHours(2, 0, 0, 0) // 2 AM UTC = 10 PM EDT previous day
       
-      // If it's already past 2 AM UTC today, set target to tomorrow
-      if (now >= target) {
-        target.setUTCDate(target.getUTCDate() + 1)
+      // If it's Sunday and past 2 AM UTC, set to next Sunday
+      if (dayOfWeek === 0 && now.getUTCHours() >= 2) {
+        target.setUTCDate(target.getUTCDate() + 7)
       }
       
       return target
@@ -26,19 +30,24 @@ const useCountdownTo10PM = (signalTimestamp: string) => {
 
     const updateCountdown = () => {
       const now = new Date()
-      const target = calculateNext10PMEDT()
+      const target = calculateNextSunday10PMEDT()
       
       const diff = target.getTime() - now.getTime()
       
       if (diff <= 0) {
-        setCountdown('0h 0m')
+        setCountdown('0d 0h 0m')
         return
       }
       
-      const hours = Math.floor(diff / (1000 * 60 * 60))
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
       
-      setCountdown(`${hours}h ${minutes}m`)
+      if (days > 0) {
+        setCountdown(`${days}d ${hours}h ${minutes}m`)
+      } else {
+        setCountdown(`${hours}h ${minutes}m`)
+      }
     }
 
     // Update immediately
@@ -106,7 +115,7 @@ interface SignalCardProps {
 }
 
 export default function SignalCard({ signal, signalLoading, signalError, onRefresh }: SignalCardProps) {
-  const countdown = useCountdownTo10PM(signal?.timestamp || '')
+  const countdown = useCountdownToSunday(signal?.timestamp || '')
   
   // Always render the header with timer
   const renderHeader = () => (
@@ -114,11 +123,11 @@ export default function SignalCard({ signal, signalLoading, signalError, onRefre
       <div>
         <div className="flex items-center gap-4 mb-2">
           <h2 className="text-2xl font-bold text-gray-900">
-            Trading Signal
+            Weekly Trading Signal
           </h2>
           <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg">
             <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
-            <span className="text-sm font-semibold">Next Update In:</span>
+            <span className="text-sm font-semibold">Next Signal (Sunday):</span>
             <span className="text-lg font-bold font-mono">{countdown}</span>
           </div>
         </div>
@@ -161,10 +170,10 @@ export default function SignalCard({ signal, signalLoading, signalError, onRefre
         {renderHeader()}
         <div className="text-center py-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No Signal Available Today
+            No Weekly Signal Available Yet
           </h3>
           <p className="text-gray-600 mb-4">
-            Daily trading signals are generated automatically. Check back later for today's signal.
+            Weekly trading signals are generated every Sunday. Daily FGI values are being collected and averaged.
           </p>
           <button
             onClick={onRefresh}

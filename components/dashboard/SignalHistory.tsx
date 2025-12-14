@@ -113,7 +113,7 @@ export default function SignalHistory() {
             No Signal History Yet
           </h3>
           <p className="text-gray-600">
-            You'll see trading signals here starting from when you joined. New signals are generated daily.
+            You'll see trading signals here starting from when you joined. New signals are generated weekly on Sundays.
           </p>
         </div>
       </div>

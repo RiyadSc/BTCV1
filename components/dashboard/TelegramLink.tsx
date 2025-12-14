@@ -81,7 +81,7 @@ export default function TelegramLink() {
       // Refresh the telegram link
       await fetchTelegramLink()
 
-      alert('✅ Telegram account linked successfully! You can now receive daily signals.')
+      alert('✅ Telegram account linked successfully! You can now receive weekly signals.')
     } catch (err: any) {
       console.error('Error linking Telegram:', err)
       setError(err.message)
@@ -151,7 +151,7 @@ export default function TelegramLink() {
           </svg>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Telegram Notifications</h3>
-            <p className="text-sm text-gray-600">Receive daily signals on Telegram</p>
+            <p className="text-sm text-gray-600">Receive weekly signals on Telegram</p>
           </div>
         </div>
       </div>
@@ -209,10 +209,10 @@ export default function TelegramLink() {
         <div className="space-y-4">
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-900 mb-3">
-              📱 Link your Telegram account to receive daily trading signals directly on Telegram!
+              📱 Link your Telegram account to receive weekly trading signals directly on Telegram!
             </p>
             <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-              <li>Get instant notifications for new signals</li>
+              <li>Get instant notifications every Sunday for the new weekly signal</li>
               <li>Access signals via bot commands</li>
               <li>Never miss a trading opportunity</li>
             </ul>
